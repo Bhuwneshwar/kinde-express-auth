@@ -14,8 +14,8 @@ const kindeClient = createKindeServerClient(GrantType.AUTHORIZATION_CODE, {
   authDomain: "https://rebyb.kinde.com",
   clientId: "f2af4516ea38440394a3f1dc88d6477b",
   clientSecret: "Jd7w82NnuEU3foZGFwUBsKKmR3Sz4QH3VR8mkUkJE2bVhR6YW",
-  redirectURL: "http://localhost:3000/callback",
-  logoutRedirectURL: "http://localhost:3000",
+  redirectURL: "https://kinde-express-auth-production.up.railway.app/callback",
+  logoutRedirectURL: "https://kinde-express-auth-production.up.railway.app",
   scope: "openid profile email",
 });
 
