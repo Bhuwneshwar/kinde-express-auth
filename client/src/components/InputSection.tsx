@@ -42,6 +42,10 @@ const InputSection: React.FC = () => {
       if (data.savedChat) {
         navigate(`/chat/${data.savedChat._id}`);
       }
+      if (data.error) {
+        alert("Failed to save chat. Please try again.");
+        navigate("/unauthorized");
+      }
     } catch (error) {
       console.log(error);
       alert("Failed to generate response. Please try again.");

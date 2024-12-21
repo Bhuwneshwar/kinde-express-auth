@@ -23,12 +23,13 @@ const Home = () => {
         navigate("/chat");
       }
       if (data.error) {
-        alert(data.error);
+        // alert(data.error);
+        console.log("at home function:", data.error);
         navigate("/unauthorized");
       }
     } catch (error) {
       console.log("at checkUser function:", error);
-      navigate("/unauthorized");
+      // navigate("/unauthorized");
       if (axios.isAxiosError(error)) {
       } else {
       }
