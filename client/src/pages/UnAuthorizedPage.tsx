@@ -11,7 +11,7 @@ const AuthPage: React.FC = () => {
         <div className="space-x-4">
           {/* Login Button */}
           <a
-            href="http://localhost:3000/login"
+            href="https://chat-with-gemini-ask.up.railway.app/login"
             className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300"
           >
             Login
@@ -19,7 +19,7 @@ const AuthPage: React.FC = () => {
 
           {/* Register Button */}
           <a
-            href="http://localhost:3000/register"
+            href="https://chat-with-gemini-ask.up.railway.app/register"
             className="px-6 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition-all duration-300"
           >
             Register
