@@ -34,8 +34,8 @@ const kindeClient = (0, kinde_typescript_sdk_1.createKindeServerClient)(kinde_ty
     authDomain: "https://rebyb.kinde.com",
     clientId: "f2af4516ea38440394a3f1dc88d6477b",
     clientSecret: process.env.KINDE_SECRET,
-    redirectURL: "https://chat-with-gemini-ask.up.railway.app/callback",
-    logoutRedirectURL: "https://chat-with-gemini-ask.up.railway.app",
+    redirectURL: process.env.SITE_URL + "/callback",
+    logoutRedirectURL: process.env.SITE_URL + "",
     scope: "openid profile email",
 });
 // Middleware
@@ -123,7 +123,7 @@ const checkUser = () => __awaiter(void 0, void 0, void 0, function* () {
 app.get("/api/user", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield checkUser();
     if (user)
-        res.send({ user });
+        res.send({ user, success: true });
     else
         res.send({ error: "User not found", redirect: "/login" });
 }));

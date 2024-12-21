@@ -14,7 +14,8 @@ export default defineConfig({
     //   },
     // },
     proxy: {
-      "/api": "https://chat-with-gemini-ask.up.railway.app/",
+      // "/api": "https://chat-with-gemini-ask.up.railway.app/",
+      "/api": "http://localhost:3000",
     },
   },
 });

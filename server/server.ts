@@ -33,8 +33,8 @@ const kindeClient = createKindeServerClient(GrantType.AUTHORIZATION_CODE, {
   authDomain: "https://rebyb.kinde.com",
   clientId: "f2af4516ea38440394a3f1dc88d6477b",
   clientSecret: process.env.KINDE_SECRET,
-  redirectURL: "https://chat-with-gemini-ask.up.railway.app/callback",
-  logoutRedirectURL: "https://chat-with-gemini-ask.up.railway.app",
+  redirectURL: process.env.SITE_URL + "/callback",
+  logoutRedirectURL: process.env.SITE_URL + "",
   scope: "openid profile email",
 });
 
@@ -130,7 +130,7 @@ const checkUser = async () => {
 
 app.get("/api/user", async (req: Request, res: Response) => {
   const user = await checkUser();
-  if (user) res.send({ user });
+  if (user) res.send({ user, success: true });
   else res.send({ error: "User not found", redirect: "/login" });
 });
 

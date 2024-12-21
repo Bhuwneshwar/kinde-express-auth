@@ -50,7 +50,7 @@ const MainContent: React.FC = () => {
         },
       ]);
 
-      const { data } = await axios.get(`/api/chats/${id}`);
+      const { data } = await axios.get(`/api/chat/${id}`);
       // console.log({ data });
       if (data.success) {
         const conversation = JSON.parse(data.chat.conversations);
