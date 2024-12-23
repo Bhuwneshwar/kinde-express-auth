@@ -29,7 +29,7 @@ const InputSection: React.FC = () => {
         prompt,
         id,
       });
-      // console.log({ data });
+      console.log({ data });
       const answer = data.answer;
       dispatch("markdowns", [
         ...markdowns,
@@ -54,7 +54,7 @@ const InputSection: React.FC = () => {
   };
 
   return (
-    <div className="p-2.5 border-t border-black bg-gray-100 sticky bottom-0 w-full shadow-md rounded-lg z-10">
+    <div className="p-2.5 border-t border-black bg-gray-100 sticky bottom-0 w-11/12 shadow-md rounded-lg mx-auto">
       <textarea
         placeholder="Type a message..."
         className="w-full p-2.5 text-base bg-transparent border-none outline-none resize-none rounded-md"

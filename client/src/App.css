@@ -149,5 +149,20 @@ h1::after {
   flex-direction: column;
   justify-content: space-between;
   position: relative;
-  width: 100vw;
+  width: calc(100% - 250px);
+  border: 1px solid #000;
+  height: 100%;
+}
+/* 
+.user {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
+  background-color: #f3f3f3;
+  border-bottom: 1px solid #ddd;
+} */
+
+* {
+  /* border: 1px solid hsla(0, 0%, 0%, 0.281); */
+  /* overflow: auto; */
 }

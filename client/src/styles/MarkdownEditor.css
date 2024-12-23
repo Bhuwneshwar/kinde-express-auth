@@ -1,11 +1,21 @@
 .markdown {
   /* max-width: 800px; */
-  width: 100%;
+  max-width: 100%;
+  width: fit-content;
+
   /* margin: 0 1rem; */
   background: hsl(0, 0%, 100%);
   border-radius: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   padding: 20px;
+}
+
+.markdown.user {
+  border-top-right-radius: 0;
+}
+
+.markdown.model {
+  border-top-left-radius: 0;
 }
 
 /* Headings */
@@ -75,17 +85,17 @@
 .markdown li {
   margin: 5px 0;
 }
-*/
 
 /* Code Blocks */
 .markdown pre {
-  background: #2d2d2d;
+  /* background: #2d2d2d; */
   color: #f8f8f2;
   padding: 15px;
   border-radius: 5px;
   overflow-x: auto;
   font-family: "Courier New", monospace;
   font-size: 14px;
+  /* width: 333px; */
 }
 
 .markdown pre code {
@@ -101,10 +111,9 @@
   font-size: 14px;
   color: #c7254e;
 }
-*/
 
 /* Links */
- .markdown a {
+.markdown a {
   color: #3498db;
   text-decoration: none;
 }
@@ -163,4 +172,32 @@
 
 .markdown del {
   text-decoration: line-through;
+}
+
+.codePlace .top {
+  background: #ddd;
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+  padding: 0.2rem 0.8rem;
+  border-radius: 10px 10px 0 0;
+
+  span {
+    font-weight: bold;
+    color: var(--c5);
+  }
+}
+.codePlace {
+  width: 100%;
+  border-radius: 10px;
+  /* background: #222; */
+  border: 1px solid #ccc;
+}
+.codePlace button {
+  padding: 0.1rem 0.5rem;
+  background: #eee;
+  /* border: 1px solid var(--c6); */
+  color: var(--c2);
+  font-size: 1rem;
+  border-radius: 10px;
 }

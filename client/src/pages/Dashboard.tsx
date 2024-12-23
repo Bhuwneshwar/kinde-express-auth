@@ -6,7 +6,7 @@ const Dashboard = () => {
   return (
     <div className="app">
       <Sidebar />
-      <div className="main-wrapper">
+      <div className="main-wrapper md:w-full ">
         <MainContent />
         <InputSection />
       </div>

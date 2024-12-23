@@ -103,11 +103,16 @@ const MainContent: React.FC = () => {
         node.innerHTML = html;
 
         const preNode = node.parentNode as HTMLElement; // This is <pre>
+        console.log();
 
         const codePlace = document.createElement("div");
         codePlace.className =
-          "codePlace border-2 border-blue-500 rounded-lg  w-";
-        codePlace.innerHTML = `<div class="top flex justify-between items-center bg-gray-200 text-black text-sm px-4 py-2 rounded-t-lg"><span>${language}</span><button class="copy-button bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition">Copy Code</button></div><pre class=" bg-gray-100 font-mono text-sm p-4 rounded-b-lg overflow-x-auto max-w-full"><code class="language-${language}">${html}</code></pre>`;
+          // "codePlace flex flex-col border-2 border-blue-500 rounded-lg  w-full";
+          "codePlace";
+        // flex justify-between items-center bg-gray-200 text-black text-sm px-4 py-2 rounded-t-lg
+        // bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition
+        // bg-gray-100 font-mono text-sm p-4 rounded-b-lg overflow-x-auto max-w-full
+        codePlace.innerHTML = `<div class="top "><span>${language}</span><button class="copy-button">Copy Code</button></div><pre class=""><code class="language-${language}">${html}</code></pre>`;
 
         preNode.replaceWith(codePlace);
 
@@ -145,38 +150,70 @@ const MainContent: React.FC = () => {
   };
   // console.log({ user });
 
+  console.log({ pic: user?.picture });
+
   return (
-    <div ref={markdownOutputRef} className="flex-1 p-2 h-full overflow-auto">
+    <div ref={markdownOutputRef} className={` p-2 h-full overflow-y-auto`}>
       {markdowns.map((markdown, i) => {
         return (
-          <div key={i} className="conversation w-screen">
-            <div className="user flex my-8">
-              <div className=" w-full">
-                <p className="date-time text-center text-teal-700">
+          <div key={i} className="conversation w-full">
+            <div className="user grid my-8 w-full  gap-4">
+              <div className=" h-full w-full">
+                <p className="date-time text-right text-teal-700 w-full">
                   {new Date(markdown.createdAt).toLocaleString()}
                 </p>
-
-                <div
-                  // id="markdown-output"
-                  className="markdown markdown-output"
-                  // ref={markdownOutputRef} // Attach ref to this div
-                  dangerouslySetInnerHTML={{
-                    __html: MarkdownToHtml(markdown.user),
-                  }}
-                ></div>
+                <div className=" w-[cal(100% - 2.30rem)] ml-[2.30rem] flex justify-end  ">
+                  <div
+                    // id="markdown-output"
+                    className="markdown markdown-output user"
+                    // ref={markdownOutputRef} // Attach ref to this div
+                    dangerouslySetInnerHTML={{
+                      __html: MarkdownToHtml(markdown.user),
+                    }}
+                  ></div>
+                </div>
               </div>
-              <div className="icon w-9 h-9 relative bottom-2">
+              <div className="icon w-9 h-9 relative">
                 <img
-                  className="w-full h-full rounded-full border-gray-900 border-2 overflow-hidden"
-                  src={user?.picture}
+                  className="w-full h-full object-cover rounded-full border-gray-900 border-2 overflow-hidden"
+                  src={
+                    user?.picture ||
+                    "https://static.vecteezy.com/system/resources/previews/019/879/186/large_2x/user-icon-on-transparent-background-free-png.png"
+                  }
                   alt="user"
                 />
               </div>
             </div>
-            <div className="model flex my-8">
+            {/* model */}
+            <div className="model grid my-8 w-full gap-4">
+              <div className="icon w-9 h-9 relative">
+                <img
+                  className="w-full h-full object-cover rounded-full border-gray-900 border-2 overflow-hidden"
+                  src={
+                    "https://png.pngtree.com/png-clipart/20230326/original/pngtree-chip-ai-human-brain-intelligence-technology-chip-high-tech-circuit-board-png-image_9004997.png"
+                  }
+                  alt="model"
+                />
+              </div>
+              <div className=" w-full">
+                <div className=" w-[cal(100% - 2.30rem)] mr-[2.30rem] flex justify-start  ">
+                  <div
+                    // id="markdown-output"
+                    className="markdown markdown-output model"
+                    // ref={markdownOutputRef} // Attach ref to this div
+                    dangerouslySetInnerHTML={{
+                      __html: MarkdownToHtml(markdown.model),
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            {/* model view*/}
+            {/* <div className="model  my-8">
               <div className="icon w-9 h-9 relative bottom-4">
                 <img
-                  className="w-full h-full rounded-full border-gray-900 border-2"
+                  className="w-full object-cover h-full rounded-full border-gray-900 border-2"
                   src={
                     "https://png.pngtree.com/png-clipart/20230326/original/pngtree-chip-ai-human-brain-intelligence-technology-chip-high-tech-circuit-board-png-image_9004997.png"
                   }
@@ -186,13 +223,13 @@ const MainContent: React.FC = () => {
 
               <div
                 // id="markdown-output"
-                className="markdown markdown-output"
+                className="markdown markdown-output w-fit"
                 // ref={markdownOutputRef} // Attach ref to this div
                 dangerouslySetInnerHTML={{
                   __html: MarkdownToHtml(markdown.model),
                 }}
               ></div>
-            </div>
+            </div> */}
           </div>
         );
       })}

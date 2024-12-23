@@ -10,3 +10,10 @@
   overflow-x: auto;
   font-family: monospace;
 }
+
+.model {
+  grid-template-columns: 2.3rem 90%;
+}
+.user {
+  grid-template-columns: 90% 2.3rem;
+}

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { useRebybRedux } from "rebyb-redux";
+import { InitialState } from "../Store";
 
 interface IChat {
   conversations: string;
@@ -12,7 +14,11 @@ interface IChat {
 
 const Sidebar: React.FC = () => {
   const [chats, setChats] = useState<IChat[]>([]);
-  const [isOpen, setIsOpen] = useState(false); // State to toggle sidebar visibility on small screens
+  const {
+    store: { sidebar },
+    dispatch,
+  } = useRebybRedux<InitialState>();
+  // const [isOpen, setIsOpen] = useState(false); // State to toggle sidebar visibility on small screens
   const navigate = useNavigate();
   let currentDate: string;
   const initial = async () => {
@@ -52,19 +58,21 @@ const Sidebar: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative">
+    <div className="relative z-50">
       {/* Toggle Button for Small Screens */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-4 left-4 z-20 bg-blue-600 text-white px-4 py-2 rounded"
+        onClick={() => dispatch("sidebar", !sidebar)}
+        className={`md:hidden ${
+          sidebar ? " hidden" : "Menu"
+        } fixed top-4 left-4  bg-blue-600 opacity-70 text-white px-4 py-2 rounded`}
       >
-        {isOpen ? "Close" : "Menu"}
+        {sidebar ? "Close" : "Menu"}
       </button>
 
       {/* Sidebar */}
       <div
         className={`fixed z-10 top-0 left-0 h-full bg-gray-100 border-r border-gray-300 p-5 transform ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          sidebar ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:w-64`}
       >
         {/* Sidebar Header */}
@@ -73,6 +81,13 @@ const Sidebar: React.FC = () => {
         </h2>
 
         <button
+          onClick={() => dispatch("sidebar", !sidebar)}
+          className={`w-full bg-blue-400 my-2  rounded-md text-white p-1            
+        md:hidden`}
+        >
+          Close
+        </button>
+        <button
           onClick={logout}
           className=" w-full bg-red-400  rounded-md text-white p-1"
         >
@@ -80,7 +95,7 @@ const Sidebar: React.FC = () => {
         </button>
 
         {/* Chat List */}
-        <div className="flex-1 overflow-y-auto space-y-3">
+        <div className="flex-1 overflow-y-auto space-y-3 h-5/6 my-1">
           {[...chats].reverse().map((ch) => {
             const question = JSON.parse(ch.conversations)[0].parts[0].text;
 
@@ -107,6 +122,196 @@ const Sidebar: React.FC = () => {
               </div>
             );
           })}
+
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
+          {/* Create New Chat */}
+          <div className="border-b border-gray-200 pb-2">
+            <Link
+              to="/chat/new"
+              className="block text-gray-700 hover:text-blue-600 hover:underline text-sm font-medium"
+            >
+              Create New Chat
+            </Link>
+          </div>
         </div>
 
         {/* Footer */}
