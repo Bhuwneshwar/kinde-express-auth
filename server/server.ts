@@ -134,6 +134,41 @@ app.get("/api/user", async (req: Request, res: Response) => {
   else res.send({ error: "User not found", redirect: "/login" });
 });
 
+const geminiTest = async (req: Request, res: Response) => {
+  try {
+    const prompt = req.body.prompt || req.query.prompt || req.params.prompt;
+    if (!prompt) {
+      res.status(400).send({ error: "Prompt is required." });
+      return;
+    }
+
+    const chatSession = model.startChat({
+      generationConfig,
+      safetySettings,
+      history: [
+        { role: "user", parts: [{ text: "Your name is RebyB Intelligent" }] },
+        {
+          role: "model",
+          parts: [{ text: "Ok my name is RebyB Intelligent" }],
+        },
+      ],
+    });
+
+    const result = await chatSession.sendMessage(
+      JSON.stringify({ prompt, IndianTime: Date() })
+    );
+    const response = result.response.text();
+
+    res.json({ answer: response });
+  } catch (error) {
+    console.log();
+    res.send({ error: error });
+  }
+};
+
+app.get("/api/test/:prompt?", geminiTest);
+app.post("/api/test/:prompt?", geminiTest);
+
 // Routes
 // app.get("/api/admin", (req: Request, res: Response) => {
 //   res.send(
