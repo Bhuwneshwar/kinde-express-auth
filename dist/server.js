@@ -130,6 +130,9 @@ app.get("/api/user", (req, res) => __awaiter(void 0, void 0, void 0, function* (
 const geminiTest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const prompt = req.body.prompt || req.query.prompt || req.params.prompt;
+        const systemPrompt = req.body.systemPrompt ||
+            req.query.systemPrompt ||
+            req.params.systemPrompt;
         if (!prompt) {
             res.status(400).send({ error: "Prompt is required." });
             return;
@@ -138,6 +141,7 @@ const geminiTest = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             generationConfig,
             safetySettings,
             history: [
+                { role: "system", parts: [{ text: systemPrompt || "" }] },
                 { role: "user", parts: [{ text: "Your name is RebyB Intelligent" }] },
                 {
                     role: "model",
