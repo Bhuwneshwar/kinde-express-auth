@@ -159,13 +159,7 @@ const geminiTest = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.send({ error: error });
     }
 });
-const memory = [
-    { role: "user", parts: [{ text: "Your name is RebyB Intelligent" }] },
-    {
-        role: "model",
-        parts: [{ text: "Ok my name is RebyB Intelligent" }],
-    },
-];
+const memory = [];
 const geminiWithMemory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const prompt = req.body.prompt || req.query.prompt || req.params.prompt;
@@ -182,7 +176,9 @@ const geminiWithMemory = (req, res) => __awaiter(void 0, void 0, void 0, functio
             safetySettings,
             history: memory,
         });
-        const result = yield chatSession.sendMessage(JSON.stringify({ prompt, IndianTime: Date() }));
+        const result = yield chatSession.sendMessage(
+        // JSON.stringify({ prompt, IndianTime: Date() })
+        prompt);
         const response = result.response.text();
         res.json({ answer: response });
         memory.push({ role: "user", parts: [{ text: prompt }] });

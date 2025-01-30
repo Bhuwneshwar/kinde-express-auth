@@ -171,13 +171,7 @@ const geminiTest = async (req: Request, res: Response) => {
   }
 };
 
-const memory = [
-  { role: "user", parts: [{ text: "Your name is RebyB Intelligent" }] },
-  {
-    role: "model",
-    parts: [{ text: "Ok my name is RebyB Intelligent" }],
-  },
-];
+const memory: any[] = [];
 const geminiWithMemory = async (req: Request, res: Response) => {
   try {
     const prompt = req.body.prompt || req.query.prompt || req.params.prompt;
@@ -197,7 +191,8 @@ const geminiWithMemory = async (req: Request, res: Response) => {
     });
 
     const result = await chatSession.sendMessage(
-      JSON.stringify({ prompt, IndianTime: Date() })
+      // JSON.stringify({ prompt, IndianTime: Date() })
+      prompt
     );
     const response = result.response.text();
 
