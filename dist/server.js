@@ -21,6 +21,7 @@ const errorHandler_1 = require("./middleware/errorHandler");
 const generative_ai_1 = require("@google/generative-ai");
 const conversation_1 = __importDefault(require("./models/conversation")); // Ensure conversation model is properly typed
 const mongoose_1 = __importDefault(require("mongoose"));
+const agent_fn_call_1 = require("./controllers/agent-fn-call");
 dotenv_1.default.config();
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 if (!GEMINI_API_KEY) {
@@ -155,7 +156,7 @@ const geminiTest = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.json({ answer: response });
     }
     catch (error) {
-        console.log();
+        console.log(error);
         res.send({ error: error });
     }
 });
@@ -188,7 +189,7 @@ const geminiWithMemory = (req, res) => __awaiter(void 0, void 0, void 0, functio
         });
     }
     catch (error) {
-        console.log();
+        console.log(error);
         res.send({ error: error });
     }
 });
@@ -196,6 +197,8 @@ app.get("/api/test/:prompt?", geminiTest);
 app.post("/api/test/:prompt?", geminiTest);
 app.get("/api/gemini-with-memory/:prompt?", geminiWithMemory);
 app.post("/api/gemini-with-memory/:prompt?", geminiWithMemory);
+app.get("/api/agent.fn-call/:prompt?", agent_fn_call_1.agent_fnCall);
+app.post("/api/agent.fn-call/:prompt?", agent_fn_call_1.agent_fnCall);
 // Routes
 // app.get("/api/admin", (req: Request, res: Response) => {
 //   res.send(

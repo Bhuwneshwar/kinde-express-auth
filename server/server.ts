@@ -14,6 +14,7 @@ import {
 } from "@google/generative-ai";
 import conversation from "./models/conversation"; // Ensure conversation model is properly typed
 import mongoose from "mongoose";
+import { agent_fnCall } from "./controllers/agent-fn-call";
 
 dotenv.config();
 
@@ -166,7 +167,7 @@ const geminiTest = async (req: Request, res: Response) => {
 
     res.json({ answer: response });
   } catch (error) {
-    console.log();
+    console.log(error);
     res.send({ error: error });
   }
 };
@@ -204,7 +205,7 @@ const geminiWithMemory = async (req: Request, res: Response) => {
       parts: [{ text: response }],
     });
   } catch (error) {
-    console.log();
+    console.log(error);
     res.send({ error: error });
   }
 };
@@ -214,6 +215,9 @@ app.post("/api/test/:prompt?", geminiTest);
 
 app.get("/api/gemini-with-memory/:prompt?", geminiWithMemory);
 app.post("/api/gemini-with-memory/:prompt?", geminiWithMemory);
+
+app.get("/api/agent.fn-call/:prompt?", agent_fnCall);
+app.post("/api/agent.fn-call/:prompt?", agent_fnCall);
 
 // Routes
 // app.get("/api/admin", (req: Request, res: Response) => {
