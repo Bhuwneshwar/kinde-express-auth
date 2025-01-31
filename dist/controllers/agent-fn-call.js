@@ -141,6 +141,14 @@ const agent_fnCall = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                             description: "takes a picture",
                         },
                         {
+                            name: "takeSelfie",
+                            description: "takes a selfie",
+                        },
+                        {
+                            name: "openLastPicture",
+                            description: "open last picture taken",
+                        },
+                        {
                             name: "sendSMS",
                             description: "send sms accept phone number and message",
                             parameters: {
@@ -158,14 +166,10 @@ const agent_fnCall = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                         {
                             name: "playMusic",
                             description: "play music",
-                            parameters: {
-                                type: generative_ai_1.SchemaType.OBJECT,
-                                properties: {
-                                    songName: {
-                                        type: generative_ai_1.SchemaType.STRING,
-                                    },
-                                },
-                            },
+                        },
+                        {
+                            name: "pauseMusic",
+                            description: "pause music",
                         },
                     ],
                 },
@@ -181,7 +185,6 @@ const agent_fnCall = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         };
         //how to replace
         // POSSIBLE_ROLES;
-        console.log({ history: JSON.stringify(history, null, 2) });
         // async function run(): Promise<void> {
         const chatSession = model.startChat({
             generationConfig,
@@ -202,6 +205,7 @@ const agent_fnCall = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             });
             // console.log({ content: cand.content });
             res.send(cand.content);
+            console.log({ history: JSON.stringify(history, null, 2) });
             // cand.content.parts?.forEach((part) => {
             //   if (part.functionCall) {
             //     const items = part.functionCall.args;

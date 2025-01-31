@@ -151,6 +151,14 @@ export const agent_fnCall = async (
               description: "takes a picture",
             },
             {
+              name: "takeSelfie",
+              description: "takes a selfie",
+            },
+            {
+              name: "openLastPicture",
+              description: "open last picture taken",
+            },
+            {
               name: "sendSMS",
               description: "send sms accept phone number and message",
               parameters: {
@@ -168,14 +176,10 @@ export const agent_fnCall = async (
             {
               name: "playMusic",
               description: "play music",
-              parameters: {
-                type: SchemaType.OBJECT,
-                properties: {
-                  songName: {
-                    type: SchemaType.STRING,
-                  },
-                },
-              },
+            },
+            {
+              name: "pauseMusic",
+              description: "pause music",
             },
           ],
         },
@@ -193,8 +197,6 @@ export const agent_fnCall = async (
 
     //how to replace
     // POSSIBLE_ROLES;
-
-    console.log({ history: JSON.stringify(history, null, 2) });
 
     // async function run(): Promise<void> {
     const chatSession = model.startChat({
@@ -219,6 +221,7 @@ export const agent_fnCall = async (
 
       // console.log({ content: cand.content });
       res.send(cand.content);
+      console.log({ history: JSON.stringify(history, null, 2) });
 
       // cand.content.parts?.forEach((part) => {
       //   if (part.functionCall) {
