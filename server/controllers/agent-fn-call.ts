@@ -69,14 +69,36 @@ export const agent_fnCall = async (
       safetySettings,
       systemInstruction:
         systemPrompt ||
-        "you are an AI android mobile operator with available tools",
+        `you are an AI android mobile operator with available tools and also you can respond to general questions
+        
+        example:
+        - send a message to amit
+        if you don't know amit or any body phone number then you can ask me to get all contacts
+        - send a message to 912-269-7021
+        
+        
+        `,
       tools: [
         {
           functionDeclarations: [
             {
               name: "getAllContacts",
-              description:
-                "returns all contacts from the saved contacts list type {name:bikram,number:966586235}",
+              description: `returns all contacts from the saved contacts list type {[Amit Beta]: 
+                -- [Phone Number]: 
+                ---- [Mobile]: 912-269-7021
+                [Amulya Mistri]: 
+                -- [Phone Number]: 
+                ---- [Mobile]: 834-864-7994
+                [Anand Tile Mishtri]: 
+                -- [Phone Number]: 
+                ---- [Mobile]: 908-320-9153
+                [Anwar Bijali Wala]: 
+                -- [Phone Number]: 
+                ---- [Mobile]: 771-097-3612
+                [Ari An]: 
+                -- [Phone Number]: 
+                ---- [Mobile]: +919614132547
+                }`,
             },
             {
               name: "sendWhatsAppMessage",
@@ -96,7 +118,7 @@ export const agent_fnCall = async (
             },
             {
               name: "phoneCall",
-              description: "make a phone call",
+              description: "make a phone call accept to phone number",
               parameters: {
                 type: SchemaType.OBJECT,
                 properties: {
@@ -108,7 +130,7 @@ export const agent_fnCall = async (
             },
             {
               name: "sendEmail",
-              description: "send an email",
+              description: "send an email accept to email , subject, message",
               parameters: {
                 type: SchemaType.OBJECT,
                 properties: {
@@ -130,7 +152,7 @@ export const agent_fnCall = async (
             },
             {
               name: "sendSMS",
-              description: "send sms",
+              description: "send sms accept phone number and message",
               parameters: {
                 type: SchemaType.OBJECT,
                 properties: {
@@ -172,7 +194,7 @@ export const agent_fnCall = async (
     //how to replace
     // POSSIBLE_ROLES;
 
-    console.log({ history: JSON.stringify(history) });
+    console.log({ history: JSON.stringify(history, null, 2) });
 
     // async function run(): Promise<void> {
     const chatSession = model.startChat({
