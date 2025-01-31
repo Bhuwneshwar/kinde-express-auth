@@ -158,7 +158,7 @@ const agent_fnCall = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         };
         //how to replace
         // POSSIBLE_ROLES;
-        console.log({ history });
+        console.log({ history: JSON.stringify(history) });
         // async function run(): Promise<void> {
         const chatSession = model.startChat({
             generationConfig,

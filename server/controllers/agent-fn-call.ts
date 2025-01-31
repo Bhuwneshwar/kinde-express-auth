@@ -172,7 +172,7 @@ export const agent_fnCall = async (
     //how to replace
     // POSSIBLE_ROLES;
 
-    console.log({ history });
+    console.log({ history: JSON.stringify(history) });
 
     // async function run(): Promise<void> {
     const chatSession = model.startChat({
