@@ -70,7 +70,7 @@ const agent_fnCall = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                         },
                         {
                             name: "sendWhatsAppMessage",
-                            description: "sends a message using WhatsApp",
+                            description: "sends a message using WhatsApp accept phone number and message",
                             parameters: {
                                 type: generative_ai_1.SchemaType.OBJECT,
                                 properties: {
@@ -158,6 +158,7 @@ const agent_fnCall = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         };
         //how to replace
         // POSSIBLE_ROLES;
+        console.log({ history });
         // async function run(): Promise<void> {
         const chatSession = model.startChat({
             generationConfig,

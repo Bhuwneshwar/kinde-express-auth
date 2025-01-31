@@ -80,7 +80,8 @@ export const agent_fnCall = async (
             },
             {
               name: "sendWhatsAppMessage",
-              description: "sends a message using WhatsApp",
+              description:
+                "sends a message using WhatsApp accept phone number and message",
               parameters: {
                 type: SchemaType.OBJECT,
                 properties: {
@@ -170,6 +171,8 @@ export const agent_fnCall = async (
 
     //how to replace
     // POSSIBLE_ROLES;
+
+    console.log({ history });
 
     // async function run(): Promise<void> {
     const chatSession = model.startChat({
