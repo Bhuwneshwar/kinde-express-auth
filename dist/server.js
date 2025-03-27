@@ -128,73 +128,108 @@ app.get("/api/user", (req, res) => __awaiter(void 0, void 0, void 0, function* (
     else
         res.send({ error: "User not found", redirect: "/login" });
 }));
-const geminiTest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Store conversation history in an array
+let conversationHistory = [];
+function createChatSession(his, systemPrompt) {
+    const model = genAI.getGenerativeModel({
+        model: "gemini-2.0-flash",
+        systemInstruction: systemPrompt || "You are a helpful assistant",
+    });
+    return model.startChat({
+        generationConfig,
+        history: his,
+    });
+}
+const gemini = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const prompt = req.body.prompt || req.query.prompt || req.params.prompt;
-        // const systemPrompt =
-        //   req.body.systemPrompt ||
-        //   req.query.systemPrompt ||
-        //   req.params.systemPrompt;
+        const systemPrompt = req.body.systemPrompt ||
+            req.query.systemPrompt ||
+            req.params.systemPrompt;
         if (!prompt) {
             res.status(400).send({ error: "Prompt is required." });
             return;
         }
-        const chatSession = model.startChat({
-            generationConfig,
-            safetySettings,
-            history: [
-                // { role: "system", parts: [{ text: systemPrompt || "" }] },
-                { role: "user", parts: [{ text: "Your name is RebyB Intelligent" }] },
-                {
-                    role: "model",
-                    parts: [{ text: "Ok my name is RebyB Intelligent" }],
-                },
-            ],
+        const chatSession = createChatSession([], systemPrompt);
+        const result = yield chatSession.sendMessage(prompt);
+        const responseText = result.response.text();
+        res.json({
+            answer: responseText,
         });
-        const result = yield chatSession.sendMessage(JSON.stringify({ prompt, IndianTime: Date() }));
-        const response = result.response.text();
-        res.json({ answer: response });
+        // const chatSession = model.startChat({
+        //   generationConfig,
+        //   safetySettings,
+        //   history: [
+        //     // { role: "system", parts: [{ text: systemPrompt || "" }] },
+        //     { role: "user", parts: [{ text: "Your name is RebyB Intelligent" }] },
+        //     {
+        //       role: "model",
+        //       parts: [{ text: "Ok my name is RebyB Intelligent" }],
+        //     },
+        //   ],
+        // });
+        // const result = await chatSession.sendMessage(
+        //   JSON.stringify({ prompt, Time: Date() })
+        // );
+        // const response = result.response.text();
+        // res.json({ answer: response });
     }
     catch (error) {
         console.log(error);
         res.send({ error: error });
     }
 });
-const memory = [];
+// const memory: any[] = [];
 const geminiWithMemory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const prompt = req.body.prompt || req.query.prompt || req.params.prompt;
-        // const systemPrompt =
-        //   req.body.systemPrompt ||
-        //   req.query.systemPrompt ||
-        //   req.params.systemPrompt;
+        const systemPrompt = req.body.systemPrompt ||
+            req.query.systemPrompt ||
+            req.params.systemPrompt;
         if (!prompt) {
             res.status(400).send({ error: "Prompt is required." });
             return;
         }
-        const chatSession = model.startChat({
-            generationConfig,
-            safetySettings,
-            history: memory,
+        const chatSession = createChatSession(conversationHistory, systemPrompt);
+        const result = yield chatSession.sendMessage(prompt);
+        const responseText = result.response.text();
+        // Update conversation history
+        conversationHistory.push({
+            role: "user",
+            parts: [{ text: prompt }],
         });
-        const result = yield chatSession.sendMessage(
-        // JSON.stringify({ prompt, IndianTime: Date() })
-        prompt);
-        const response = result.response.text();
-        res.json({ answer: response });
-        memory.push({ role: "user", parts: [{ text: prompt }] });
-        memory.push({
+        conversationHistory.push({
             role: "model",
-            parts: [{ text: response }],
+            parts: [{ text: responseText }],
         });
+        res.json({
+            answer: responseText,
+            historyLength: conversationHistory.length,
+        });
+        // const chatSession = model.startChat({
+        //   generationConfig,
+        //   safetySettings,
+        //   history: memory,
+        // });
+        // const result = await chatSession.sendMessage(
+        //   JSON.stringify({ prompt, IndianTime: Date() })
+        //   // prompt
+        // );
+        // const response = result.response.text();
+        // res.json({ answer: response });
+        // memory.push({ role: "user", parts: [{ text: prompt }] });
+        // memory.push({
+        //   role: "model",
+        //   parts: [{ text: response }],
+        // });
     }
     catch (error) {
         console.log(error);
         res.send({ error: error });
     }
 });
-app.get("/api/test/:prompt?", geminiTest);
-app.post("/api/test/:prompt?", geminiTest);
+app.get("/api/gemini/:prompt?", gemini);
+app.post("/api/gemini/:prompt?", gemini);
 app.get("/api/gemini-with-memory/:prompt?", geminiWithMemory);
 app.post("/api/gemini-with-memory/:prompt?", geminiWithMemory);
 app.get("/api/agent.fn-call/:prompt?", agent_fn_call_1.agent_fnCall);
