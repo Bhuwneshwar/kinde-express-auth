@@ -279,6 +279,17 @@ app.post("/api/gemini-with-memory/:prompt?", geminiWithMemory);
 app.get("/api/agent.fn-call/:prompt?", agent_fnCall);
 app.post("/api/agent.fn-call/:prompt?", agent_fnCall);
 
+// API endpoint to retrieve conversation history
+app.get("/api/history", (req: Request, res: Response) => {
+  res.json(conversationHistory);
+});
+
+// API endpoint to clear conversation history
+app.delete("/api/history", (req: Request, res: Response) => {
+  conversationHistory.length = 0;
+  res.json({ message: "Conversation history cleared" });
+});
+
 // Routes
 // app.get("/api/admin", (req: Request, res: Response) => {
 //   res.send(

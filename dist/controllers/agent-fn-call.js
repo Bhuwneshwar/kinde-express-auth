@@ -8,233 +8,232 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __asyncValues = (this && this.__asyncValues) || function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.agent_fnCall = void 0;
-const generative_ai_1 = require("@google/generative-ai");
+const genai_1 = require("@google/genai");
 const dotenv_1 = __importDefault(require("dotenv"));
+// Load environment variables
 dotenv_1.default.config();
-const apiKey = process.env.GEMINI_API_KEY;
-const genAI = new generative_ai_1.GoogleGenerativeAI(apiKey);
+// Initialize GoogleGenAI
+const ai = new genai_1.GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY || "",
+});
+// Conversation history store
+const conversationHistory = [];
 const safetySettings = [
     {
-        category: generative_ai_1.HarmCategory.HARM_CATEGORY_HARASSMENT,
-        threshold: generative_ai_1.HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+        category: genai_1.HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold: genai_1.HarmBlockThreshold.BLOCK_ONLY_HIGH,
     },
     {
-        category: generative_ai_1.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-        threshold: generative_ai_1.HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+        category: genai_1.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold: genai_1.HarmBlockThreshold.BLOCK_ONLY_HIGH,
     },
     {
-        category: generative_ai_1.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-        threshold: generative_ai_1.HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+        category: genai_1.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold: genai_1.HarmBlockThreshold.BLOCK_ONLY_HIGH,
+    },
+    {
+        category: genai_1.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold: genai_1.HarmBlockThreshold.BLOCK_ONLY_HIGH,
     },
 ];
-const history = [
-//   {
-//     role: "user",
-//     parts: [
-//       {
-//         text: "send whatsapp message to ujjwal, write message how are you?",
-//       },
-//     ],
-//   },
-];
+// Gemini AI configuration
+const config = {
+    // safetySettings,
+    responseMimeType: "application/json",
+    responseSchema: {
+        type: genai_1.Type.OBJECT,
+        required: ["response"],
+        properties: {
+            response: {
+                type: genai_1.Type.STRING,
+            },
+            action: {
+                type: genai_1.Type.OBJECT,
+                properties: {
+                    toolName: {
+                        type: genai_1.Type.STRING,
+                    },
+                    parameters: {
+                        type: genai_1.Type.OBJECT,
+                        properties: {
+                            param1: { type: genai_1.Type.STRING },
+                            param2: { type: genai_1.Type.STRING },
+                            param3: { type: genai_1.Type.STRING },
+                            param4: { type: genai_1.Type.STRING },
+                            param5: { type: genai_1.Type.STRING },
+                        },
+                    },
+                },
+            },
+            thought: {
+                type: genai_1.Type.STRING,
+            },
+            next: {
+                type: genai_1.Type.STRING,
+            },
+        },
+    },
+    systemInstruction: [
+        {
+            text: `You are a helpful AI assistant. You can perform tasks using tools available to you. Always decide whether a tool is needed based on the user's request, and use it appropriately. Below is a list of available tools and how to use them:
+
+🔧 Available Tools
+📇 Contact Management
+getAllContacts
+
+Description: Returns all contacts from the saved contacts list.
+
+📱 Communication Tools
+sendWhatsAppMessage
+
+Description: Sends a message using WhatsApp.
+
+Parameters:
+param1: string — The recipient’s phone number.
+param2: string — The message to send.
+
+phoneCall
+
+Description: Makes a phone call.
+
+Parameters:
+param1: string — The phone number to call.
+
+sendEmail
+
+Description: Sends an email.
+
+Parameters:
+param1: string — Recipient's email address.
+param2: string — Email subject.
+param3: string — Email body.
+
+sendSMS
+
+Description: Sends a text message (SMS).
+
+Parameters:
+param1: string — The recipient’s phone number.
+param2: string — The message to send.
+
+📷 Camera Functions
+takePicture
+
+Description: Takes a picture.
+
+takeSelfie
+
+Description: Takes a selfie using the front camera.
+
+openLastPicture
+
+Description: Opens the last picture taken.
+
+🎵 Music Controls
+playMusic
+
+Description: Plays music.
+
+pauseMusic
+
+Description: Pauses the currently playing music.
+
+📌 Usage Instructions
+Before calling a tool, explain your reasoning in a thought.
+
+When calling a tool, provide the exact name and its parameters.
+
+Format your structured output like this:
+{
+  "thought": "The user wants to send a WhatsApp message. I will use the appropriate tool.",
+  "action": {
+    "tool": "sendWhatsAppMessage",
+    "parameters": {
+      "param1": "+911234567890",
+      "param2": "Hello from the AI assistant!"
+    }
+  },
+  "next": "I will confirm that the message has been sent."
+}
+`,
+        },
+    ],
+};
+// API endpoint to handle Gemini AI requests
 const agent_fnCall = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, e_1, _b, _c;
     try {
-        // console.log("agent_fnCall");
-        const prompt = req.body.prompt || req.query.prompt || req.params.prompt;
-        const systemPrompt = req.body.systemPrompt ||
-            req.query.systemPrompt ||
-            req.params.systemPrompt;
+        const { prompt } = req.body;
         if (!prompt) {
-            res.status(400).json({
-                message: "prompt is required",
-            });
+            res.status(400).json({ error: "prompt is required" });
             return;
         }
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash-exp",
-            safetySettings,
-            systemInstruction: systemPrompt ||
-                `you are an AI android mobile operator with available tools and also you can respond to general questions
-        
-        example:
-        - send a message to amit
-        if you don't know amit or any body phone number then you can ask me to get all contacts
-        - send a message to 912-269-7021
-        
-        
-        `,
-            tools: [
-                {
-                    functionDeclarations: [
-                        {
-                            name: "getAllContacts",
-                            description: `returns all contacts from the saved contacts list type {[Amit Beta]: 
-                -- [Phone Number]: 
-                ---- [Mobile]: 912-269-7021
-                [Amulya Mistri]: 
-                -- [Phone Number]: 
-                ---- [Mobile]: 834-864-7994
-                [Anand Tile Mishtri]: 
-                -- [Phone Number]: 
-                ---- [Mobile]: 908-320-9153
-                [Anwar Bijali Wala]: 
-                -- [Phone Number]: 
-                ---- [Mobile]: 771-097-3612
-                [Ari An]: 
-                -- [Phone Number]: 
-                ---- [Mobile]: +919614132547
-                }`,
-                        },
-                        {
-                            name: "sendWhatsAppMessage",
-                            description: "sends a message using WhatsApp accept phone number and message",
-                            parameters: {
-                                type: generative_ai_1.SchemaType.OBJECT,
-                                properties: {
-                                    phoneNumber: {
-                                        type: generative_ai_1.SchemaType.STRING,
-                                    },
-                                    message: {
-                                        type: generative_ai_1.SchemaType.STRING,
-                                    },
-                                },
-                            },
-                        },
-                        {
-                            name: "phoneCall",
-                            description: "make a phone call accept to phone number",
-                            parameters: {
-                                type: generative_ai_1.SchemaType.OBJECT,
-                                properties: {
-                                    phoneNumber: {
-                                        type: generative_ai_1.SchemaType.STRING,
-                                    },
-                                },
-                            },
-                        },
-                        {
-                            name: "sendEmail",
-                            description: "send an email accept to email , subject, message",
-                            parameters: {
-                                type: generative_ai_1.SchemaType.OBJECT,
-                                properties: {
-                                    to: {
-                                        type: generative_ai_1.SchemaType.STRING,
-                                    },
-                                    subject: {
-                                        type: generative_ai_1.SchemaType.STRING,
-                                    },
-                                    message: {
-                                        type: generative_ai_1.SchemaType.STRING,
-                                    },
-                                },
-                            },
-                        },
-                        {
-                            name: "takePicture",
-                            description: "takes a picture",
-                        },
-                        {
-                            name: "takeSelfie",
-                            description: "takes a selfie",
-                        },
-                        {
-                            name: "openLastPicture",
-                            description: "open last picture taken",
-                        },
-                        {
-                            name: "sendSMS",
-                            description: "send sms accept phone number and message",
-                            parameters: {
-                                type: generative_ai_1.SchemaType.OBJECT,
-                                properties: {
-                                    phoneNumber: {
-                                        type: generative_ai_1.SchemaType.STRING,
-                                    },
-                                    message: {
-                                        type: generative_ai_1.SchemaType.STRING,
-                                    },
-                                },
-                            },
-                        },
-                        {
-                            name: "playMusic",
-                            description: "play music",
-                        },
-                        {
-                            name: "pauseMusic",
-                            description: "pause music",
-                        },
-                    ],
-                },
-            ],
-            toolConfig: { functionCallingConfig: { mode: generative_ai_1.FunctionCallingMode.ANY } },
+        const model = "gemini-2.5-flash-preview-04-17";
+        const contents = [
+            ...conversationHistory.map(({ role, text }) => ({
+                role,
+                parts: [{ text }],
+            })),
+            {
+                role: "user",
+                parts: [{ text: prompt }],
+            },
+        ];
+        const response = yield ai.models.generateContentStream({
+            model,
+            config,
+            contents,
         });
-        const generationConfig = {
-            temperature: 1,
-            topP: 0.95,
-            topK: 40,
-            maxOutputTokens: 8192,
-            responseMimeType: "text/plain",
-        };
-        //how to replace
-        // POSSIBLE_ROLES;
-        // async function run(): Promise<void> {
-        const chatSession = model.startChat({
-            generationConfig,
-            history,
-        });
-        const userMsg = prompt;
-        const result = yield chatSession.sendMessage(userMsg);
-        history.push({
+        let fullResponse = "";
+        try {
+            for (var _d = true, response_1 = __asyncValues(response), response_1_1; response_1_1 = yield response_1.next(), _a = response_1_1.done, !_a; _d = true) {
+                _c = response_1_1.value;
+                _d = false;
+                const chunk = _c;
+                fullResponse += chunk.text || "";
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (!_d && !_a && (_b = response_1.return)) yield _b.call(response_1);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        let parsedResponse;
+        try {
+            parsedResponse = JSON.parse(fullResponse);
+        }
+        catch (parseError) {
+            parsedResponse = { response: fullResponse };
+        }
+        // Store user prompt and AI response in history
+        conversationHistory.push({
             role: "user",
-            parts: [{ text: userMsg }],
+            text: prompt,
+            timestamp: new Date().toISOString(),
+        }, {
+            role: "model",
+            text: fullResponse,
+            timestamp: new Date().toISOString(),
         });
-        // console.log(JSON.stringify(result, null, 2));
-        (_a = result.response.candidates) === null || _a === void 0 ? void 0 : _a.forEach((cand) => {
-            // console.log({ cand });
-            history.push({
-                role: "model",
-                parts: [{ text: JSON.stringify(cand.content) }],
-            });
-            // console.log({ content: cand.content });
-            res.send(cand.content);
-            console.log({ history: JSON.stringify(history, null, 2) });
-            // cand.content.parts?.forEach((part) => {
-            //   if (part.functionCall) {
-            //     const items = part.functionCall.args;
-            //     const args = Object.entries(items)
-            //       .map(([key, value]) => `${key}:${value}`)
-            //       .join(", ");
-            //     console.log(`${part.functionCall.name}(${args})`);
-            //     const value = eval(`${part.functionCall.name}(${args})`);
-            //     console.log({ value });
-            //     history.push({
-            //       role: "function",
-            //       parts: [{ text: value }],
-            //     });
-            //     if (value) {
-            //       res.status(200).json({
-            //         message: value,
-            //       });
-            //     }
-            //   }
-            // });
-        });
-        // }
-        // await run();
+        res.json(parsedResponse);
     }
     catch (error) {
-        console.error("agent_fnCall error", error);
-        res.status(500).json({
-            message: "Internal server error",
-        });
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 exports.agent_fnCall = agent_fnCall;

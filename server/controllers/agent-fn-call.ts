@@ -1,259 +1,227 @@
-import {
-  GoogleGenerativeAI,
-  HarmCategory,
-  HarmBlockThreshold,
-  SchemaType,
-  FunctionCallingMode,
-  POSSIBLE_ROLES,
-} from "@google/generative-ai";
-import dotenv from "dotenv";
 import { Request, Response } from "express";
+import {
+  GoogleGenAI,
+  HarmBlockThreshold,
+  HarmCategory,
+  Type,
+} from "@google/genai";
+import dotenv from "dotenv";
 
+// Load environment variables
 dotenv.config();
 
-const apiKey: string = process.env.GEMINI_API_KEY!;
-const genAI = new GoogleGenerativeAI(apiKey);
+// Initialize GoogleGenAI
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY || "",
+});
 
+// Interface for conversation history entries
+interface HistoryEntry {
+  role: "user" | "model";
+  text: string;
+  timestamp: string;
+}
+
+// Conversation history store
+const conversationHistory: HistoryEntry[] = [];
 const safetySettings = [
   {
     category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-    threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+    threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
   },
   {
     category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-    threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+    threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
   },
   {
     category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-    threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+    threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
   },
 ];
-type PossibleRole = "user" | "function" | "system" | "model";
+// Gemini AI configuration
+const config = {
+  // safetySettings,
+  responseMimeType: "application/json",
+  responseSchema: {
+    type: Type.OBJECT,
+    required: ["response"],
+    properties: {
+      response: {
+        type: Type.STRING,
+      },
+      action: {
+        type: Type.OBJECT,
+        properties: {
+          toolName: {
+            type: Type.STRING,
+          },
+          parameters: {
+            type: Type.OBJECT,
+            properties: {
+              param1: { type: Type.STRING },
+              param2: { type: Type.STRING },
+              param3: { type: Type.STRING },
+              param4: { type: Type.STRING },
+              param5: { type: Type.STRING },
+            },
+          },
+        },
+      },
+      thought: {
+        type: Type.STRING,
+      },
+      next: {
+        type: Type.STRING,
+      },
+    },
+  },
+  systemInstruction: [
+    {
+      text: `You are a helpful AI assistant. You can perform tasks using tools available to you. Always decide whether a tool is needed based on the user's request, and use it appropriately. Below is a list of available tools and how to use them:
 
-const history: Array<{
-  role: PossibleRole;
-  parts: Array<{ text: string }>;
-}> = [
-  //   {
-  //     role: "user",
-  //     parts: [
-  //       {
-  //         text: "send whatsapp message to ujjwal, write message how are you?",
-  //       },
-  //     ],
-  //   },
-];
+🔧 Available Tools
+📇 Contact Management
+getAllContacts
 
-export const agent_fnCall = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+Description: Returns all contacts from the saved contacts list.
+
+📱 Communication Tools
+sendWhatsAppMessage
+
+Description: Sends a message using WhatsApp.
+
+Parameters:
+param1: string — The recipient’s phone number.
+param2: string — The message to send.
+
+phoneCall
+
+Description: Makes a phone call.
+
+Parameters:
+param1: string — The phone number to call.
+
+sendEmail
+
+Description: Sends an email.
+
+Parameters:
+param1: string — Recipient's email address.
+param2: string — Email subject.
+param3: string — Email body.
+
+sendSMS
+
+Description: Sends a text message (SMS).
+
+Parameters:
+param1: string — The recipient’s phone number.
+param2: string — The message to send.
+
+📷 Camera Functions
+takePicture
+
+Description: Takes a picture.
+
+takeSelfie
+
+Description: Takes a selfie using the front camera.
+
+openLastPicture
+
+Description: Opens the last picture taken.
+
+🎵 Music Controls
+playMusic
+
+Description: Plays music.
+
+pauseMusic
+
+Description: Pauses the currently playing music.
+
+📌 Usage Instructions
+Before calling a tool, explain your reasoning in a thought.
+
+When calling a tool, provide the exact name and its parameters.
+
+Format your structured output like this:
+{
+  "thought": "The user wants to send a WhatsApp message. I will use the appropriate tool.",
+  "action": {
+    "tool": "sendWhatsAppMessage",
+    "parameters": {
+      "param1": "+911234567890",
+      "param2": "Hello from the AI assistant!"
+    }
+  },
+  "next": "I will confirm that the message has been sent."
+}
+`,
+    },
+  ],
+};
+
+// API endpoint to handle Gemini AI requests
+export const agent_fnCall = async (req: Request, res: Response) => {
   try {
-    // console.log("agent_fnCall");
-
-    const prompt = req.body.prompt || req.query.prompt || req.params.prompt;
-    const systemPrompt =
-      req.body.systemPrompt ||
-      req.query.systemPrompt ||
-      req.params.systemPrompt;
-
+    const { prompt } = req.body as { prompt?: string };
     if (!prompt) {
-      res.status(400).json({
-        message: "prompt is required",
-      });
+      res.status(400).json({ error: "prompt is required" });
       return;
     }
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash-exp",
-      safetySettings,
-      systemInstruction:
-        systemPrompt ||
-        `you are an AI android mobile operator with available tools and also you can respond to general questions
-        
-        example:
-        - send a message to amit
-        if you don't know amit or any body phone number then you can ask me to get all contacts
-        - send a message to 912-269-7021
-        
-        
-        `,
-      tools: [
-        {
-          functionDeclarations: [
-            {
-              name: "getAllContacts",
-              description: `returns all contacts from the saved contacts list type {[Amit Beta]: 
-                -- [Phone Number]: 
-                ---- [Mobile]: 912-269-7021
-                [Amulya Mistri]: 
-                -- [Phone Number]: 
-                ---- [Mobile]: 834-864-7994
-                [Anand Tile Mishtri]: 
-                -- [Phone Number]: 
-                ---- [Mobile]: 908-320-9153
-                [Anwar Bijali Wala]: 
-                -- [Phone Number]: 
-                ---- [Mobile]: 771-097-3612
-                [Ari An]: 
-                -- [Phone Number]: 
-                ---- [Mobile]: +919614132547
-                }`,
-            },
-            {
-              name: "sendWhatsAppMessage",
-              description:
-                "sends a message using WhatsApp accept phone number and message",
-              parameters: {
-                type: SchemaType.OBJECT,
-                properties: {
-                  phoneNumber: {
-                    type: SchemaType.STRING,
-                  },
-                  message: {
-                    type: SchemaType.STRING,
-                  },
-                },
-              },
-            },
-            {
-              name: "phoneCall",
-              description: "make a phone call accept to phone number",
-              parameters: {
-                type: SchemaType.OBJECT,
-                properties: {
-                  phoneNumber: {
-                    type: SchemaType.STRING,
-                  },
-                },
-              },
-            },
-            {
-              name: "sendEmail",
-              description: "send an email accept to email , subject, message",
-              parameters: {
-                type: SchemaType.OBJECT,
-                properties: {
-                  to: {
-                    type: SchemaType.STRING,
-                  },
-                  subject: {
-                    type: SchemaType.STRING,
-                  },
-                  message: {
-                    type: SchemaType.STRING,
-                  },
-                },
-              },
-            },
-            {
-              name: "takePicture",
-              description: "takes a picture",
-            },
-            {
-              name: "takeSelfie",
-              description: "takes a selfie",
-            },
-            {
-              name: "openLastPicture",
-              description: "open last picture taken",
-            },
-            {
-              name: "sendSMS",
-              description: "send sms accept phone number and message",
-              parameters: {
-                type: SchemaType.OBJECT,
-                properties: {
-                  phoneNumber: {
-                    type: SchemaType.STRING,
-                  },
-                  message: {
-                    type: SchemaType.STRING,
-                  },
-                },
-              },
-            },
-            {
-              name: "playMusic",
-              description: "play music",
-            },
-            {
-              name: "pauseMusic",
-              description: "pause music",
-            },
-          ],
-        },
-      ],
-      toolConfig: { functionCallingConfig: { mode: FunctionCallingMode.ANY } },
+    const model = "gemini-2.5-flash-preview-04-17";
+    const contents = [
+      ...conversationHistory.map(({ role, text }) => ({
+        role,
+        parts: [{ text }],
+      })),
+      {
+        role: "user",
+        parts: [{ text: prompt }],
+      },
+    ];
+
+    const response = await ai.models.generateContentStream({
+      model,
+      config,
+      contents,
     });
 
-    const generationConfig = {
-      temperature: 1,
-      topP: 0.95,
-      topK: 40,
-      maxOutputTokens: 8192,
-      responseMimeType: "text/plain",
-    };
+    let fullResponse = "";
+    for await (const chunk of response) {
+      fullResponse += chunk.text || "";
+    }
 
-    //how to replace
-    // POSSIBLE_ROLES;
+    let parsedResponse: any;
+    try {
+      parsedResponse = JSON.parse(fullResponse);
+    } catch (parseError) {
+      parsedResponse = { response: fullResponse };
+    }
 
-    // async function run(): Promise<void> {
-    const chatSession = model.startChat({
-      generationConfig,
-      history,
-    });
-    const userMsg = prompt;
-    const result = await chatSession.sendMessage(userMsg);
-    history.push({
-      role: "user",
-      parts: [{ text: userMsg }],
-    });
-
-    // console.log(JSON.stringify(result, null, 2));
-
-    result.response.candidates?.forEach((cand) => {
-      // console.log({ cand });
-      history.push({
+    // Store user prompt and AI response in history
+    conversationHistory.push(
+      {
+        role: "user",
+        text: prompt,
+        timestamp: new Date().toISOString(),
+      },
+      {
         role: "model",
-        parts: [{ text: JSON.stringify(cand.content) }],
-      });
+        text: fullResponse,
+        timestamp: new Date().toISOString(),
+      }
+    );
 
-      // console.log({ content: cand.content });
-      res.send(cand.content);
-      console.log({ history: JSON.stringify(history, null, 2) });
-
-      // cand.content.parts?.forEach((part) => {
-      //   if (part.functionCall) {
-      //     const items = part.functionCall.args;
-      //     const args = Object.entries(items)
-      //       .map(([key, value]) => `${key}:${value}`)
-      //       .join(", ");
-      //     console.log(`${part.functionCall.name}(${args})`);
-
-      //     const value = eval(`${part.functionCall.name}(${args})`);
-      //     console.log({ value });
-
-      //     history.push({
-      //       role: "function",
-      //       parts: [{ text: value }],
-      //     });
-
-      //     if (value) {
-      //       res.status(200).json({
-      //         message: value,
-      //       });
-      //     }
-      //   }
-      // });
-    });
-    // }
-
-    // await run();
+    res.json(parsedResponse);
   } catch (error) {
-    console.error("agent_fnCall error", error);
-    res.status(500).json({
-      message: "Internal server error",
-    });
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
