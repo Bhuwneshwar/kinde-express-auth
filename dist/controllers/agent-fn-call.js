@@ -77,9 +77,9 @@ const config = {
                     },
                 },
             },
-            thought: {
-                type: genai_1.Type.STRING,
-            },
+            // thought: {
+            //   type: Type.STRING,
+            // },
             next: {
                 type: genai_1.Type.STRING,
             },
@@ -89,75 +89,57 @@ const config = {
         {
             text: `You are a helpful AI assistant. You can perform tasks using tools available to you. Always decide whether a tool is needed based on the user's request, and use it appropriately. Below is a list of available tools and how to use them:
 
-🔧 Available Tools
-📇 Contact Management
-getAllContacts
+🔧 Available Tools:
 
-Description: Returns all contacts from the saved contacts list.
+    name: getAllContacts
+    Description: Returns all contacts from the saved contacts list.
 
-📱 Communication Tools
-sendWhatsAppMessage
+    name: sendWhatsAppMessage
+    Description: Sends a message using WhatsApp.
+    Parameters:
+    param1: string — The recipient’s phone number.
+    param2: string — The message to send.
 
-Description: Sends a message using WhatsApp.
+    name: phoneCall
+    Description: Makes a phone call.
+    Parameters:
+    param1: string — The phone number to call.
 
-Parameters:
-param1: string — The recipient’s phone number.
-param2: string — The message to send.
+    name: sendEmail
+    Description: Sends an email.
+    Parameters:
+    param1: string — Recipient's email address.
+    param2: string — Email subject.
+    param3: string — Email body.
 
-phoneCall
+    name: sendSMS
+    Description: Sends a text message (SMS).
+    Parameters:
+    param1: string — The recipient’s phone number.
+    param2: string — The message to send.
 
-Description: Makes a phone call.
+    name: takePicture
+    Description: Takes a picture.
 
-Parameters:
-param1: string — The phone number to call.
+    name: takeSelfie
+    Description: Takes a selfie using the front camera.
 
-sendEmail
+    name: openLastPicture
+    Description: Opens the last picture taken.
 
-Description: Sends an email.
+    name: playMusic
+    Description: Plays music.
 
-Parameters:
-param1: string — Recipient's email address.
-param2: string — Email subject.
-param3: string — Email body.
+    name: pauseMusic
+    Description: Pauses the currently playing music.
+    name: stopMusic
 
-sendSMS
-
-Description: Sends a text message (SMS).
-
-Parameters:
-param1: string — The recipient’s phone number.
-param2: string — The message to send.
-
-📷 Camera Functions
-takePicture
-
-Description: Takes a picture.
-
-takeSelfie
-
-Description: Takes a selfie using the front camera.
-
-openLastPicture
-
-Description: Opens the last picture taken.
-
-🎵 Music Controls
-playMusic
-
-Description: Plays music.
-
-pauseMusic
-
-Description: Pauses the currently playing music.
-
+    
 📌 Usage Instructions
-Before calling a tool, explain your reasoning in a thought.
-
 When calling a tool, provide the exact name and its parameters.
 
 Format your structured output like this:
 {
-  "thought": "The user wants to send a WhatsApp message. I will use the appropriate tool.",
   "action": {
     "tool": "sendWhatsAppMessage",
     "parameters": {
